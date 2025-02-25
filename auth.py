@@ -3,7 +3,7 @@ from flask import jsonify
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from token import generate_token, validate_token
+from token_generation import generate_token, validate_token
 
 from app import bcrypt, redis_client
 
