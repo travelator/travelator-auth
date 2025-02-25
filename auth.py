@@ -1,5 +1,4 @@
 from flask_restful import Resource, reqparse
-from flask import jsonify
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
