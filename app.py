@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_restful import Api
-from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 from auth import Register, Login, ValidateSession, Logout
 from extensions import bcrypt
