@@ -30,13 +30,13 @@ class Register(Resource):
             }).execute()
 
             if len(result.data) > 0:
-                return jsonify({
+                return {
                     "message": "User registered successfully"
-                }), 201
+                }, 201
             else:
-                return jsonify({"message": "Failed to register user"}), 400
+                return {"message": "Failed to register user"}, 400
         except Exception as e:
-            return jsonify({"error": str(e)}), 400
+            return {"error": str(e)}, 400
 
 
 class Login(Resource):
@@ -53,7 +53,7 @@ class Login(Resource):
                       .execute())
 
             if len(result.data) == 0:
-                return jsonify({"error": "User not found"}), 401
+                return {"error": "User not found"}, 401
 
             user = result.data[0]
             stored_password = user['password']
@@ -63,9 +63,9 @@ class Login(Resource):
                 redis_client.setex(f"session:{user['email']}", 86400, token)
                 return {"token": token}, 200
             else:
-                return jsonify({"message": "Wrong password"}), 401
+                return {"message": "Wrong password"}, 401
         except Exception as e:
-            return jsonify({"error": str(e)}), 400
+            return {"error": str(e)}, 400
 
 
 class ValidateSession(Resource):
