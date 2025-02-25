@@ -4,8 +4,7 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from token_generation import generate_token, validate_token
-
-from app import bcrypt, redis_client
+from extensions import bcrypt, redis_client
 
 load_dotenv()
 

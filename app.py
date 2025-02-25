@@ -1,22 +1,16 @@
 from flask import Flask
 from flask_restful import Api
 from flask_bcrypt import Bcrypt
-import redis
-import os
 from dotenv import load_dotenv
 from auth import Register, Login, ValidateSession, Logout
+from extensions import bcrypt
 
 load_dotenv()
 
-redis_client = redis.Redis(
-    host=os.getenv('REDIS_HOST'),
-    port=os.getenv('REDIS_PORT'),
-    password=os.getenv('REDIS_PASSWORD'),
-)
 
 app = Flask(__name__)
 api = Api(app)
-bcrypt = Bcrypt(app)
+bcrypt.init_app(app)
 
 
 api.add_resource(Register, '/register')
