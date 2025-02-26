@@ -1,3 +1,4 @@
+import re
 from flask_restful import Resource, reqparse
 from flask import request
 import os
@@ -14,6 +15,25 @@ key: str = os.getenv("API_KEY")
 supabase: Client = create_client(url, key)
 
 
+# Function to validate email
+def is_valid_email(email):
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return re.match(pattern, email)
+
+
+# Function to validate password
+def is_valid_password(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+    if not any(char.isdigit() for char in password):
+        return "Password must contain at least one number."
+    if not any(char.isupper() for char in password):
+        return "Password must contain at least one uppercase letter."
+    if not any(char in "!@#$%^&*()_+-=[]{}|;':\",.<>?/`~" for char in password):
+        return "Password must contain at least one special character."
+    return None  # Password is valid
+
+
 class Register(Resource):
     def get(self):
         return {"message": "Use a POST request to register a user."}, 200
@@ -23,7 +43,17 @@ class Register(Resource):
         parser.add_argument('email', type=str, required=True)
         parser.add_argument('password', type=str, required=True)
         args = parser.parse_args()
-        hashed_password = (bcrypt.generate_password_hash(args['password']).decode('utf-8'))
+
+        # Validate Email
+        if not is_valid_email(args['email']):
+            return {"error": "Invalid email format."}, 400
+
+        # Validate Password
+        password_error = is_valid_password(args['password'])
+        if password_error:
+            return {"error": password_error}, 400
+
+        hashed_password = bcrypt.generate_password_hash(args['password']).decode('utf-8')
 
         try:
             result = supabase.table('users').insert({
@@ -32,14 +62,15 @@ class Register(Resource):
             }).execute()
 
             if len(result.data) > 0:
+                user_id = result.data[0]['id']  # Assuming Supabase auto-generates 'id'
                 return {
-                    "message": "User registered successfully"
+                    "message": "User registered successfully",
+                    "user_id": user_id  # Return user_id to frontend
                 }, 201
             else:
                 return {"message": "Failed to register user"}, 400
         except Exception as e:
             return {"error": str(e)}, 400
-
 
 
 class Login(Resource):
