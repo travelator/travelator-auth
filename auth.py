@@ -15,13 +15,15 @@ supabase: Client = create_client(url, key)
 
 
 class Register(Resource):
+    def get(self):
+        return {"message": "Use a POST request to register a user."}, 200
+
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('email', type=str, required=True)
         parser.add_argument('password', type=str, required=True)
         args = parser.parse_args()
-        hashed_password = (bcrypt.generate_password_hash(args['password']).
-                           decode('utf-8'))
+        hashed_password = (bcrypt.generate_password_hash(args['password']).decode('utf-8'))
 
         try:
             result = supabase.table('users').insert({
@@ -37,6 +39,7 @@ class Register(Resource):
                 return {"message": "Failed to register user"}, 400
         except Exception as e:
             return {"error": str(e)}, 400
+
 
 
 class Login(Resource):
