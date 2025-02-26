@@ -78,7 +78,7 @@ class ValidateSession(Resource):
         if email:
             stored_token = redis_client.get(f"session:{email}")
             if stored_token and stored_token.decode('utf-8') == token:
-                return {'message': 'Valid session'}, 200
+                return {'message': 'Valid session', 'email': email}, 200
         return {'message': 'Invalid session'}, 401
 
 
