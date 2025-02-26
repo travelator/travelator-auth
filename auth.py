@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse
+from flask import request
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -69,25 +70,25 @@ class Login(Resource):
 
 class ValidateSession(Resource):
     def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('token', location='headers', required=True)
-        args = parser.parse_args()
-
-        email = validate_token(args['token'])
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return {'message': 'Missing Authorization header'}, 401
+        token = auth_header.split(' ')[1]  # Assumes 'Bearer <token>'
+        email = validate_token(token)
         if email:
             stored_token = redis_client.get(f"session:{email}")
-            if stored_token and stored_token.decode('utf-8') == args['token']:
+            if stored_token and stored_token.decode('utf-8') == token:
                 return {'message': 'Valid session'}, 200
         return {'message': 'Invalid session'}, 401
 
 
 class Logout(Resource):
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('token', location='headers', required=True)
-        args = parser.parse_args()
-
-        email = validate_token(args['token'])
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return {'message': 'Missing Authorization header'}, 401
+        token = auth_header.split(' ')[1]  # Assumes 'Bearer <token>'
+        email = validate_token(token)
         if email:
             redis_client.delete(f"session:{email}")
             return {'message': 'Logged out successfully'}, 200
