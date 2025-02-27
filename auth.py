@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from flask import request
+from flask import request, make_response
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -61,7 +61,9 @@ class Login(Resource):
             if bcrypt.check_password_hash(stored_password, args['password']):
                 token = generate_token(user['email'])
                 redis_client.setex(f"session:{user['email']}", 86400, token)
-                return {"token": token}, 200
+                resp = make_response({"token": token})
+                resp.set_cookie('token', token, max_age=86400)
+                return resp, 200
             else:
                 return {"message": "Wrong password"}, 401
         except Exception as e:
@@ -70,10 +72,9 @@ class Login(Resource):
 
 class ValidateSession(Resource):
     def get(self):
-        auth_header = request.headers.get('Authorization')
-        if not auth_header:
-            return {'message': 'Missing Authorization header'}, 401
-        token = auth_header.split(' ')[1]  # Assumes 'Bearer <token>'
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'Missing token cookie'}, 401
         email = validate_token(token)
         if email:
             stored_token = redis_client.get(f"session:{email}")
@@ -84,12 +85,13 @@ class ValidateSession(Resource):
 
 class Logout(Resource):
     def post(self):
-        auth_header = request.headers.get('Authorization')
-        if not auth_header:
-            return {'message': 'Missing Authorization header'}, 401
-        token = auth_header.split(' ')[1]  # Assumes 'Bearer <token>'
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'Missing token cookie'}, 401
         email = validate_token(token)
         if email:
             redis_client.delete(f"session:{email}")
-            return {'message': 'Logged out successfully'}, 200
+            resp = make_response({'message': 'Logged out successfully'})
+            resp.delete_cookie('token')
+            return resp, 200
         return {'message': 'Invalid session'}, 401

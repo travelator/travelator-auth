@@ -4,16 +4,17 @@ import requests
 BASE_URL = ("http://travelator-auth-09."
             "g7hmghc2bjgaafhb.uksouth.azurecontainer.io:5000")
 
+session = requests.Session()
+
 
 def test_register_and_login():
-    # To register a user, pass email and
-    # password to the /register path as shown below
+    # Register a user
     register_data = {
-        "email": "testuser10@example.com",
+        "email": "testuser12@example.com",
         "password": "admin"
     }
 
-    register_response = requests.post(
+    register_response = session.post(
         f"{BASE_URL}/register",
         json=register_data
     )
@@ -24,40 +25,26 @@ def test_register_and_login():
         register_response.json()
     )
 
-    # To log in a user, pass the email and
-    # password to the /login path and CAPTURE THE JWT TOKEN
+    # Log in a user
     login_data = {
-        "email": "testuser10@example.com",
+        "email": "testuser12@example.com",
         "password": "admin"
     }
 
-    login_response = requests.post(f"{BASE_URL}/login", json=login_data)
+    login_response = session.post(f"{BASE_URL}/login", json=login_data)
     print("Login Response:", login_response.status_code, login_response.json())
 
     if login_response.status_code == 200:
-        # That's how you get the token from the response
-        token = login_response.json().get('token')
-
-        # To validate a session add the token TO
-        # THE HEADER as show below and get the response
-        headers = {"Authorization": f"Bearer {token}"}
-        validate_response = requests.get(
-            f"{BASE_URL}/validate",
-            headers=headers
-        )
-
+        # Validate session
+        validate_response = session.get(f"{BASE_URL}/validate")
         print(
             "Validation Response:",
             validate_response.status_code,
             validate_response.json()
         )
 
-        # To log out the user add the token to
-        # the header to remove it from the cache
-        logout_response = requests.post(
-            f"{BASE_URL}/logout",
-            headers=headers
-        )
+        # Log out the user
+        logout_response = session.post(f"{BASE_URL}/logout")
         print(
             "Logout Response:",
             logout_response.status_code,
