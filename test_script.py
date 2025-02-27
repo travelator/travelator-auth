@@ -1,7 +1,8 @@
 import requests
 
 # FQDN for the authentication microservice
-BASE_URL = ("http://127.0.0.1:5001")
+BASE_URL = ("http://travelator-auth-09."
+            "g7hmghc2bjgaafhb.uksouth.azurecontainer.io:5000")
 
 # Create a session to persist cookies across requests
 session = requests.Session()
