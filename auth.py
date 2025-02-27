@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from flask import request, make_response
+from flask import request, jsonify
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -61,9 +61,9 @@ class Login(Resource):
             if bcrypt.check_password_hash(stored_password, args['password']):
                 token = generate_token(user['email'])
                 redis_client.setex(f"session:{user['email']}", 86400, token)
-                resp = make_response({"token": token})
+                resp = jsonify({"token": token})
                 resp.set_cookie('token', token, max_age=86400)
-                return resp, 200
+                return resp
             else:
                 return {"message": "Wrong password"}, 401
         except Exception as e:
@@ -91,7 +91,7 @@ class Logout(Resource):
         email = validate_token(token)
         if email:
             redis_client.delete(f"session:{email}")
-            resp = make_response({'message': 'Logged out successfully'})
+            resp = jsonify({'message': 'Logged out successfully'})
             resp.delete_cookie('token')
-            return resp, 200
+            return resp
         return {'message': 'Invalid session'}, 401

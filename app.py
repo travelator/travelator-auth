@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restful import Api
+from flask_cors import CORS
 from dotenv import load_dotenv
 from auth import Register, Login, ValidateSession, Logout
 from extensions import bcrypt
@@ -8,6 +9,7 @@ load_dotenv()
 
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 api = Api(app)
 bcrypt.init_app(app)
 
