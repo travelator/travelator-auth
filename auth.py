@@ -62,7 +62,7 @@ class Login(Resource):
                 token = generate_token(user['email'])
                 redis_client.setex(f"session:{user['email']}", 86400, token)
                 resp = jsonify({"token": token})
-                resp.set_cookie('token', token, max_age=86400)
+                resp.set_cookie('token', token, max_age=86400, httponly=True, secure=True, samesite='None')
                 return resp
             else:
                 return {"message": "Wrong password"}, 401
