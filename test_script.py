@@ -1,8 +1,10 @@
 import requests
 
 # FQDN for the authentication microservice
-BASE_URL = ("http://travelator-auth-09."
-            "g7hmghc2bjgaafhb.uksouth.azurecontainer.io:5000")
+BASE_URL = (
+    "http://travelator-auth-09."
+    "g7hmghc2bjgaafhb.uksouth.azurecontainer.io:5000"
+)
 
 # Create a session to persist cookies across requests
 session = requests.Session()
@@ -10,14 +12,10 @@ session = requests.Session()
 
 def test_register_and_login():
     # Register a user
-    register_data = {
-        "email": "testuser15@example.com",
-        "password": "admin"
-    }
+    register_data = {"email": "testuser15@example.com", "password": "admin"}
 
     register_response = session.post(
-        f"{BASE_URL}/register",
-        json=register_data
+        f"{BASE_URL}/register", json=register_data
     )
 
     print(
@@ -26,10 +24,7 @@ def test_register_and_login():
     )
 
     # Log in a user
-    login_data = {
-        "email": "testuser15@example.com",
-        "password": "admin"
-    }
+    login_data = {"email": "testuser15@example.com", "password": "admin"}
 
     login_response = session.post(f"{BASE_URL}/login", json=login_data)
     print("Login Response:", login_response.status_code)
