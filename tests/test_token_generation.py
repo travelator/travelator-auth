@@ -1,4 +1,3 @@
-import pytest
 import jwt
 from datetime import datetime, timedelta, timezone
 from token_generation import generate_token, validate_token, SECRET_KEY
