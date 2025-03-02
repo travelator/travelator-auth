@@ -49,7 +49,7 @@ class Login(Resource):
         try:
             result = (
                 supabase.table("users")
-                .select("email", "password")
+                .select("user_id", "email", "password")
                 .eq("email", args["email"])
                 .execute()
             )
@@ -61,8 +61,8 @@ class Login(Resource):
             stored_password = user["password"]
 
             if bcrypt.check_password_hash(stored_password, args["password"]):
-                token = generate_token(user["email"])
-                redis_client.setex(f"session:{user['email']}", 86400, token)
+                token = generate_token(user["user_id"])
+                redis_client.setex(f"session:{user['user_id']}", 86400, token)
                 resp = jsonify({"token": token})
                 resp.set_cookie(
                     "token",
@@ -83,12 +83,13 @@ class ValidateSession(Resource):
     def get(self):
         token = request.cookies.get("token")
         if not token:
+            print("no token")
             return {"message": "Missing token cookie"}, 401
-        email = validate_token(token)
-        if email:
-            stored_token = redis_client.get(f"session:{email}")
+        user_id = validate_token(token)
+        if user_id:
+            stored_token = redis_client.get(f"session:{user_id}")
             if stored_token and stored_token.decode("utf-8") == token:
-                return {"message": "Valid session", "email": email}, 200
+                return {"message": "Valid session", "user_id": user_id}, 200
         return {"message": "Invalid session"}, 401
 
 
@@ -97,9 +98,9 @@ class Logout(Resource):
         token = request.cookies.get("token")
         if not token:
             return {"message": "Missing token cookie"}, 401
-        email = validate_token(token)
-        if email:
-            redis_client.delete(f"session:{email}")
+        user_id = validate_token(token)
+        if user_id:
+            redis_client.delete(f"session:{user_id}")
             resp = jsonify({"message": "Logged out successfully"})
             resp.delete_cookie("token")
             return resp
