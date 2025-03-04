@@ -32,7 +32,22 @@ class Register(Resource):
             )
 
             if len(result.data) > 0:
-                return {"message": "User registered successfully"}, 201
+                user = result.data[0]
+                token = generate_token(user["user_id"])
+                redis_client.setex(f"session:{user['user_id']}", 86400, token)
+                resp = jsonify({
+                    "message": "User registered and logged in successfully",
+                    "token": token
+                })
+                resp.set_cookie(
+                    "token",
+                    token,
+                    max_age=86400,
+                    httponly=True,
+                    secure=True,
+                    samesite="None",
+                )
+                return resp
             else:
                 return {"message": "Failed to register user"}, 400
         except Exception as e:
