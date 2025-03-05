@@ -1,24 +1,25 @@
 import requests
 
 
-BASE_URL = (
-    "https://auth.voya-trips.com"
-)
 
-BASE_URL = (
-    "http://127.0.0.1:5050"
-)
 
 
 # Create a session to persist cookies across requests
 session = requests.Session()
 
 
+BASE_URL = (
+    "https://auth.voya-trips.com"
+)
+
+
+
+
 def test_register_and_login():
     # Register a user
     register_data = {
-        "email": "testuser21@example.com",
-        "password": "Admin123?"
+        "email": "testuser222@example.com",
+        "password": "Admin?123"
     }
 
     register_response = session.post(
@@ -32,7 +33,7 @@ def test_register_and_login():
     )
 
     # Log in a user
-    login_data = {"email": "testuser21@example.com", "password": "Admin123?"}
+    login_data = {"email": "testuser222@example.com", "password": "Admin?123"}
 
     login_response = session.post(f"{BASE_URL}/login", json=login_data)
     print("Login Response:", login_response.status_code)

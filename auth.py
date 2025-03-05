@@ -6,6 +6,8 @@ from supabase import create_client, Client
 from token_generation import generate_token, validate_token
 from extensions import bcrypt, redis_client
 import re
+import html
+import urllib
 
 load_dotenv()
 
@@ -31,6 +33,19 @@ def is_valid_password(password):
                in "!@#$%^&*()_+-=[]{}|;':\",.<>?/`~" for char in password):
         return "Password must contain at least one special character."
     return None  # Password is valid
+
+
+def escape_sql(input_string):
+    """Escape special characters for SQL queries."""
+    return urllib.parse.quote_plus(input_string, safe='@')
+
+def escape_html(input_string):
+    """Escape special characters for HTML output."""
+    return html.escape(input_string, quote=True)
+
+def sanitize_input(input_string):
+    """Sanitize input for both SQL and HTML contexts."""
+    return escape_html(escape_sql(input_string))
 
 
 class Register(Resource):
@@ -70,6 +85,7 @@ class Register(Resource):
                     token,
                     max_age=86400,
                     httponly=True,
+                    domain='.voya-trips.com',
                     secure=True,
                     samesite="None",
                 )
@@ -110,6 +126,7 @@ class Login(Resource):
                     token,
                     max_age=86400,
                     httponly=True,
+                    domain='.voya-trips.com',
                     secure=True,
                     samesite="None",
                 )
