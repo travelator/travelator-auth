@@ -43,6 +43,16 @@ jobs:
           pip install -r requirements.txt
           pip install pytest requests
 
+      - name: Create .env file
+        run: |
+          touch .env
+          echo PROJECT_URL=${{ secrets.PROJECT_URL }} >> .env
+          echo API_KEY=${{ secrets.API_KEY }} >> .env
+          echo REDIS_HOST=travelator.redis.cache.windows.net >> .env
+          echo REDIS_PORT=6380 >> .env
+          echo REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} >> .env
+          echo JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} >> .env
+
       - name: Run tests
         run: pytest
 
