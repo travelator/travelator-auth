@@ -1,9 +1,5 @@
 import requests
 
-
-
-
-
 # Create a session to persist cookies across requests
 session = requests.Session()
 
@@ -11,8 +7,6 @@ session = requests.Session()
 BASE_URL = (
     "https://auth.voya-trips.com"
 )
-
-
 
 
 def test_register_and_login():

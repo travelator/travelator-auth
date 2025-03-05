@@ -39,9 +39,11 @@ def escape_sql(input_string):
     """Escape special characters for SQL queries."""
     return urllib.parse.quote_plus(input_string, safe='@')
 
+
 def escape_html(input_string):
     """Escape special characters for HTML output."""
     return html.escape(input_string, quote=True)
+
 
 def sanitize_input(input_string):
     """Sanitize input for both SQL and HTML contexts."""
