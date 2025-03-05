@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from token_generation import generate_token, validate_token
 from extensions import bcrypt, redis_client
+import re
 
 load_dotenv()
 
@@ -12,6 +13,24 @@ url: str = os.getenv("PROJECT_URL")
 key: str = os.getenv("API_KEY")
 
 supabase: Client = create_client(url, key)
+
+
+def is_valid_email(email):
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return re.match(pattern, email)
+
+
+def is_valid_password(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+    if not any(char.isdigit() for char in password):
+        return "Password must contain at least one number."
+    if not any(char.isupper() for char in password):
+        return "Password must contain at least one uppercase letter."
+    if not any(char
+               in "!@#$%^&*()_+-=[]{}|;':\",.<>?/`~" for char in password):
+        return "Password must contain at least one special character."
+    return None  # Password is valid
 
 
 class Register(Resource):
@@ -23,6 +42,13 @@ class Register(Resource):
         hashed_password = bcrypt.generate_password_hash(
             args["password"]
         ).decode("utf-8")
+
+        if not is_valid_email(args['email']):
+            return {"error": "Invalid email format."}, 400
+
+        password_error = is_valid_password(args['password'])
+        if password_error:
+            return {"error": password_error}, 400
 
         try:
             result = (
