@@ -82,7 +82,7 @@ jobs:
           build-args: |
             PROJECT_URL=${{ secrets.PROJECT_URL }}
             API_KEY=${{ secrets.API_KEY }}
-            REDIS_HOST=travelator.redis.cache.windows.net
+            REDIS_HOST=Travelator12.redis.cache.windows.net
             REDIS_PORT=6380
             REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
